@@ -1,14 +1,18 @@
 package models;
 
-public class Order {
-    private int id;
-    private String customerName;
-    private String shippingAddress;
+import data_structures.List;
 
-    public Order(int id, String customerName, String shippingAddress) {
+public class Order implements Comparable<Order> {
+    private int id;
+    private User user;
+    private List<Book> books;
+    private String status;
+
+    public Order(int id, User user, List<Book> books) {
         this.id = id;
-        this.customerName = customerName;
-        this.shippingAddress = shippingAddress;
+        this.user = user;
+        this.books = books;
+        this.status = "Pending";
     }
 
     public int getId() {
@@ -19,19 +23,37 @@ public class Order {
         this.id = id;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getShippingAddress() {
-        return shippingAddress;
+    public List<Book> getBooks() {
+        return books;
     }
 
-    public void setShippingAddress(String shippingAddress) {
-        this.shippingAddress = shippingAddress;
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @Override
+    public int compareTo(Order o) {
+        return Integer.compare(this.id, o.id);
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + "\nUser: " + user.getUsername() + "\nBooks: " + books + "\nStatus: " + status;
     }
 }

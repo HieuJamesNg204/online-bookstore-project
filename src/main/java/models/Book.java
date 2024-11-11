@@ -1,6 +1,6 @@
 package models;
 
-public class Book extends Comparable<Book> {
+public class Book implements Comparable<Book> {
     private int id;
     private String title;
     private String author;
