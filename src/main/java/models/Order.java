@@ -21,6 +21,10 @@ public class Order implements Comparable<Order> {
         this.orderDate = formatOrderDate(LocalDateTime.now());
     }
 
+    public Order(int orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
     private String formatOrderDate(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         return dateTime.format(formatter);
@@ -81,6 +85,23 @@ public class Order implements Comparable<Order> {
 
     @Override
     public String toString() {
-        return "Order number: " + orderNumber + "\nUser: " + user.getUsername() + "\nBooks: " + books + "\nStatus: " + status;
+        StringBuilder builder = new StringBuilder(
+                " - Order number: " + orderNumber + "\n"
+                + " - User: " + user.getUsername() + "\n"
+                + " - Books: [\n"
+        );
+
+        for (int i = 0; i < books.size(); i++) {
+            if (i == books.size() - 1) {
+                builder.append("        {").append(books.get(i)).append("}\n");
+            } else {
+                builder.append("        {").append(books.get(i)).append("},\n");
+            }
+        }
+        builder.append("    ]\n")
+                .append(" - Status: ").append(status).append("\n")
+                .append(" - Order date: ").append(orderDate);
+
+        return builder.toString();
     }
 }

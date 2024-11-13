@@ -41,22 +41,22 @@ public class Main {
 
         while (!done) {
             System.out.println("OLINE BOOKSTORE");
-            System.out.println("*******************************************");
-            System.out.println("*   1. Sort and display available books   *");
-            System.out.println("*   2. Search for a book by title         *");
-            System.out.println("*   3. Order books                        *");
-            System.out.println("*   4. Display current orders             *");
-            System.out.println("*   5. Proceed to payment                 *");
-            System.out.println("*   6. Proceed to payment                 *");
-            System.out.println("*   6. Search order history               *");
-            System.out.println("*   7. Exit                               *");
-            System.out.println("*******************************************");
+            System.out.println("*************************************");
+            System.out.println("*   1. Display available books      *");
+            System.out.println("*   2. Search for a book by title   *");
+            System.out.println("*   3. Order books                  *");
+            System.out.println("*   4. Display current orders       *");
+            System.out.println("*   5. Proceed to payment           *");
+            System.out.println("*   6. Display order history        *");
+            System.out.println("*   7. Search order history         *");
+            System.out.println("*   8. Exit                         *");
+            System.out.println("*************************************");
             while (true) {
                 try {
                     System.out.print("Your choice: ");
                     choice = scanner.nextInt();
 
-                    if (1 <= choice && choice <= 7) {
+                    if (1 <= choice && choice <= 8) {
                         break;
                     }
                     System.out.println("Your choice was invalid. Please try again!");
@@ -74,20 +74,33 @@ public class Main {
             String title;
             switch (choice) {
                 case 1:
-                    Sorting.quickSort(bookList, 0, bookList.size() - 1);
-                    System.out.println(" ---Available Books--- ");
-                    for (int i = 0; i < bookList.size(); i++) {
-                        System.out.println(" - " + bookList.get(i));
+                    if (bookList.isEmpty()) {
+                        System.out.println("Oops! No books available at the moment. Check back soon for new listings");
+                    } else {
+                        Sorting.quickSort(bookList, 0, bookList.size() - 1);
+                        System.out.println(" ---Available Books--- ");
+                        for (int i = 0; i < bookList.size(); i++) {
+                            System.out.println(" - " + bookList.get(i));
+                        }
                     }
+
+                    scanner.nextLine();
                     break;
 
                 case 2:
                     System.out.print("Book title to search for: ");
                     title = scanner.nextLine();
                     Book bookToSearchFor = new Book(title);
+                    Sorting.quickSort(bookList, 0, bookList.size() - 1);
                     Book foundBook = Searching.search(bookList, bookToSearchFor);
-                    System.out.println(" ---Book info--- ");
-                    System.out.println(foundBook);
+                    if (foundBook != null) {
+                        System.out.println(" ---Book info--- ");
+                        System.out.println(foundBook);
+                    } else {
+                        System.out.println("No such book available in the store!");
+                    }
+
+                    scanner.nextLine();
                     break;
 
                 case 3:
@@ -116,13 +129,16 @@ public class Main {
                                 if (quantity <= 0) {
                                     System.out.println("The quantity wasn't positive as expected. Please try again!");
                                 } else if (quantity > chosenBook.getQuantity()) {
-                                    System.out.print("The quantity of the chosen book is not sufficient. ");
-                                    System.out.println("Please try again!");
+                                    System.out.println("The quantity of the chosen book is not sufficient. " +
+                                            "Please try again!"
+                                    );
                                 } else {
                                     break;
                                 }
                             } catch (InputMismatchException e) {
-                                System.out.println("Your choice was not a valid positive integer from 1 to 7. Please try again!");
+                                System.out.println("Your choice was not a valid positive integer. " +
+                                        "Please try again!"
+                                );
                                 scanner.next();
                             } catch (Exception e) {
                                 System.out.println("There was an unexpected exception thrown.");
@@ -151,26 +167,37 @@ public class Main {
                             isAddingMoreBooks = false;
                         }
                     }
+
                     orderQueue.offer(new Order(user, booksToOrder));
+                    System.out.println("Book(s) successfully added to order");
+
+                    scanner.nextLine();
                     break;
 
                 case 4:
-                    System.out.println(" ---Current orders--- ");
-                    Queue<Order> tempOrderQueue = new Queue<>();
-                    while (!orderQueue.isEmpty()) {
-                        Order iteratedOrder = orderQueue.poll();
-                        System.out.println(iteratedOrder);
-                        tempOrderQueue.offer(iteratedOrder);
+                    if (orderQueue.isEmpty()) {
+                        System.out.println("No orders made at the moment. Try adding some books to see the orders");
+                    } else {
+                        System.out.println(" ---Current orders--- ");
+                        Queue<Order> tempOrderQueue = new Queue<>();
+                        while (!orderQueue.isEmpty()) {
+                            Order iteratedOrder = orderQueue.poll();
+                            System.out.println(iteratedOrder);
+                            System.out.println(" -------------------- ");
+                            tempOrderQueue.offer(iteratedOrder);
+                        }
+
+                        while (!tempOrderQueue.isEmpty()) {
+                            orderQueue.offer(tempOrderQueue.poll());
+                        }
                     }
 
-                    while (!tempOrderQueue.isEmpty()) {
-                        orderQueue.offer(tempOrderQueue.poll());
-                    }
+                    scanner.nextLine();
                     break;
 
                 case 5:
                     if (orderQueue.isEmpty()) {
-                        System.out.println("There's nothing to pay. Try adding some more books before proceeding!");
+                        System.out.println("There's nothing to pay for. Try adding some books before proceeding!");
                     } else {
                         Order order = orderQueue.poll();
                         List<Book> orderedBooks = order.getBooks();
@@ -178,9 +205,65 @@ public class Main {
                         for (int i = 0; i < orderedBooks.size(); i++) {
                             totalPaid += orderedBooks.get(i).getPrice();
                         }
+                        order.setStatus("Paid");
                         user.getOrderHistory().add(order);
-                        System.out.println("");
+                        System.out.println("Payment is successful! Total paid: $" + totalPaid);
                     }
+
+                    scanner.nextLine();
+                    break;
+
+                case 6:
+                    System.out.println(" ---Order History---");
+                    List<Order> orderList = user.getOrderHistory();
+                    if (orderList.isEmpty()) {
+                        System.out.println("No orders have been made so far.");
+                    } else {
+                        for (int i = 0; i < orderList.size(); i++) {
+                            System.out.println(orderList.get(i));
+                            System.out.println(" -------------------- ");
+                        }
+                    }
+
+                    scanner.nextLine();
+                    break;
+
+                case 7:
+                    int orderNumber;
+                    while (true) {
+                        try {
+                            System.out.print("Order number to search for: ");
+                            orderNumber = scanner.nextInt();
+
+                            if (orderNumber > 0) {
+                                break;
+                            }
+                            System.out.println("The input was not an positive integer as expected. Please try again!");
+                        } catch (InputMismatchException e) {
+                            System.out.println("Your choice was not a valid positive integer. Please try again!");
+                            scanner.next();
+                        } catch (Exception e) {
+                            System.out.println("There was an unexpected exception thrown.");
+                            e.printStackTrace();
+                        }
+                    }
+
+                    scanner.nextLine();
+
+                    Order orderToSearchFor = new Order(orderNumber);
+                    Order foundOrder = Searching.search(user.getOrderHistory(), orderToSearchFor);
+                    if (foundOrder != null) {
+                        System.out.println(" ---Order Info--- ");
+                        System.out.println(foundOrder);
+                    } else {
+                        System.out.println("This order hasn't been made before");
+                    }
+
+                    scanner.nextLine();
+                    break;
+
+                case 8:
+                    done = true;
                     break;
             }
         }
