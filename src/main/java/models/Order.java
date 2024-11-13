@@ -98,7 +98,7 @@ public class Order implements Comparable<Order> {
                 builder.append("        {").append(books.get(i)).append("},\n");
             }
         }
-        builder.append("    ]\n")
+        builder.append("   ]\n")
                 .append(" - Status: ").append(status).append("\n")
                 .append(" - Order date: ").append(orderDate);
 
