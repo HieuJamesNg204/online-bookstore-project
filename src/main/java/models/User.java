@@ -1,18 +1,18 @@
 package models;
 
-import data_structures.List;
+import utils.List;
 
 public class User {
     private String username;
     private String email;
     private String address;
-    private List<Order> orders;
+    private List<Order> orderHistory;
 
     public User(String username, String email, String address) {
         this.username = username;
         this.email = email;
         this.address = address;
-        this.orders = new List<>();
+        this.orderHistory = new List<>();
     }
 
     public String getUsername() {
@@ -39,16 +39,16 @@ public class User {
         this.address = address;
     }
 
-    public List<Order> getOrders() {
-        return orders;
+    public List<Order> getOrderHistory() {
+        return orderHistory;
     }
 
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
+    public void setOrders(List<Order> orderHistory) {
+        this.orderHistory = orderHistory;
     }
 
     public void addOrder(Order order) {
-        orders.add(order);
+        orderHistory.add(order);
     }
 
     @Override

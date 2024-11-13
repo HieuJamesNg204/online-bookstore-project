@@ -1,4 +1,4 @@
-package data_structures;
+package utils;
 
 import java.util.Arrays;
 
@@ -41,7 +41,7 @@ public class List<T> {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index out of bounds for the size " + size + ".");
         }
-        return (T) array[size];
+        return (T) array[index];
     }
 
     public void set(int index, T value) {

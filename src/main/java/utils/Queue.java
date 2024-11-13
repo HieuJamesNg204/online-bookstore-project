@@ -1,4 +1,4 @@
-package data_structures;
+package utils;
 
 public class Queue<T> {
     private static class Item<T> {

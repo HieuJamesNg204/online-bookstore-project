@@ -1,6 +1,4 @@
-package algo;
-
-import data_structures.List;
+package utils;
 
 public class Sorting {
     private static <T extends Comparable<T>> void swap(List<T> list, int i, int j) {
