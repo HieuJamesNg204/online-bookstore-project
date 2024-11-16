@@ -2,7 +2,7 @@ package utils;
 
 import java.util.Arrays;
 
-public class List<T> {
+public class List<T> implements ListInterface<T> {
     private Object[] array;
     private int size;
     private static int capacity = 10;
@@ -12,6 +12,7 @@ public class List<T> {
         size = 0;
     }
 
+    @Override
     public void add(T value) {
         if (size >= capacity) {
             grow();
@@ -19,6 +20,7 @@ public class List<T> {
         array[size++] = value;
     }
 
+    @Override
     public void insert(int index, T value) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("Index out of bounds for the size " + size + ".");
@@ -36,6 +38,7 @@ public class List<T> {
         grow();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public T get(int index) {
         if (index < 0 || index >= size) {
@@ -44,10 +47,12 @@ public class List<T> {
         return (T) array[index];
     }
 
+    @Override
     public void set(int index, T value) {
         array[index] = value;
     }
 
+    @Override
     public void remove(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index out of bounds for the size " + size + ".");
@@ -64,10 +69,12 @@ public class List<T> {
         }
     }
 
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }

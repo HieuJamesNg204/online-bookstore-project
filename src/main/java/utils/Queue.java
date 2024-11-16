@@ -1,6 +1,6 @@
 package utils;
 
-public class Queue<T> {
+public class Queue<T> implements QueueInterface<T> {
     private static class Item<T> {
         private T value;
         private Item<T> next;
@@ -19,6 +19,7 @@ public class Queue<T> {
         this.size = 0;
     }
 
+    @Override
     public void offer(T value) {
         Item<T> newItem = new Item<>(value);
 
@@ -35,6 +36,7 @@ public class Queue<T> {
         size++;
     }
 
+    @Override
     public T poll() {
         if (isEmpty()) {
             throw new IllegalStateException("Queue is empty.");
@@ -50,6 +52,7 @@ public class Queue<T> {
         return polledItem;
     }
 
+    @Override
     public T peek() {
         if (isEmpty()) {
             throw new IllegalStateException("Queue is empty.");
@@ -58,10 +61,12 @@ public class Queue<T> {
         return head.value;
     }
 
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public boolean isEmpty() {
         return head == null;
     }

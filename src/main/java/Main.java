@@ -29,16 +29,71 @@ public class Main {
         return bookList;
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+    public static User login(Scanner scanner, List<User> userList) {
+        Sorting.quickSort(userList, 0, userList.size() - 1);
 
-        User user = new User("John Doe", "johndoe@gmail.com", "204 Golden Avenue");
-        List<Book> bookList = generateAvailableBooks();
-        Queue<Order> orderQueue = new Queue<>();
+        while (true) {
+            System.out.print("Username: ");
+            String username = scanner.nextLine();
+            System.out.print("Password: ");
+            String password = scanner.nextLine();
 
+            User user = Searching.search(userList, new User(username, password));
+
+            if (user != null && user.getPassword().equals(password)) {
+                System.out.println("Logged in successfully!");
+                return user;
+            }
+
+            System.out.println("Wrong username or password");
+        }
+    }
+
+    public static User register(Scanner scanner, List<User> userList) {
+        Sorting.quickSort(userList, 0, userList.size() - 1);
+
+        String username, email, address, password, confirmedPassword, role;
+        while (true) {
+            System.out.print("Username: ");
+            username = scanner.nextLine();
+            if (Searching.search(userList, new User(username, ">w9ZYb&$g%Gq")) == null) {
+                break;
+            }
+            System.out.println("Username already taken");
+        }
+
+        System.out.print("Email: ");
+        email = scanner.nextLine();
+
+        System.out.print("Address: ");
+        address = scanner.nextLine();
+
+        System.out.print("Password: ");
+        password = scanner.nextLine();
+
+        do {
+            System.out.print("Confirm Password: ");
+            confirmedPassword = scanner.nextLine();
+
+            if (!confirmedPassword.equals(password)) {
+                System.out.println("Passwords do not match. Please try again!");
+            }
+        } while (!confirmedPassword.equals(password));
+
+        System.out.print("Role (Leaving this empty will default to 'Customer'): ");
+        role = scanner.nextLine();
+
+        if (role.isEmpty()) {
+            role = "Customer";
+        }
+
+        System.out.println("Registered successfully!");
+        return new User(username, email, address, password, role);
+    }
+
+    public static void appCustomer(Scanner scanner, List<Book> bookList, Queue<Order> orderQueue, User loggedInUser) {
         boolean done = false;
         int choice;
-
         while (!done) {
             System.out.println("OLINE BOOKSTORE");
             System.out.println("*************************************");
@@ -49,7 +104,7 @@ public class Main {
             System.out.println("*   5. Proceed to payment           *");
             System.out.println("*   6. Display order history        *");
             System.out.println("*   7. Search order history         *");
-            System.out.println("*   8. Exit                         *");
+            System.out.println("*   8. Log out                      *");
             System.out.println("*************************************");
             while (true) {
                 try {
@@ -61,7 +116,7 @@ public class Main {
                     }
                     System.out.println("Your choice was invalid. Please try again!");
                 } catch (InputMismatchException e) {
-                    System.out.println("Your choice was not a valid positive integer from 1 to 7. Please try again!");
+                    System.out.println("Your choice was not a valid positive integer from 1 to 8. Please try again!");
                     scanner.next();
                 } catch (Exception e) {
                     System.out.println("There was an unexpected exception thrown.");
@@ -168,7 +223,7 @@ public class Main {
                         }
                     }
 
-                    orderQueue.offer(new Order(user, booksToOrder));
+                    orderQueue.offer(new Order(loggedInUser, booksToOrder));
                     System.out.println("Book(s) successfully added to order");
 
                     scanner.nextLine();
@@ -206,7 +261,7 @@ public class Main {
                             totalPaid += orderedBooks.get(i).getPrice();
                         }
                         order.setStatus("Paid");
-                        user.getOrderHistory().add(order);
+                        loggedInUser.getOrderHistory().add(order);
                         System.out.println("Payment is successful! Total paid: $" + totalPaid);
                     }
 
@@ -215,7 +270,7 @@ public class Main {
 
                 case 6:
                     System.out.println(" ---Order History---");
-                    List<Order> orderList = user.getOrderHistory();
+                    List<Order> orderList = loggedInUser.getOrderHistory();
                     if (orderList.isEmpty()) {
                         System.out.println("No orders have been made so far.");
                     } else {
@@ -251,7 +306,7 @@ public class Main {
                     scanner.nextLine();
 
                     Order orderToSearchFor = new Order(orderNumber);
-                    Order foundOrder = Searching.search(user.getOrderHistory(), orderToSearchFor);
+                    Order foundOrder = Searching.search(loggedInUser.getOrderHistory(), orderToSearchFor);
                     if (foundOrder != null) {
                         System.out.println(" ---Order Info--- ");
                         System.out.println(foundOrder);
@@ -263,6 +318,283 @@ public class Main {
                     break;
 
                 case 8:
+                    done = true;
+                    break;
+            }
+        }
+    }
+
+    public static void appAdmin(Scanner scanner, List<Book> bookList,
+                                Queue<Order> orderQueue, List<User> registeredUser, User loggedInUser) {
+        boolean done = false;
+        int choice;
+        while (!done) {
+            System.out.println("ONLINE BOOKSTORE");
+            System.out.println("*********************************************");
+            System.out.println("*   1. Add a new book                       *");
+            System.out.println("*   2. Get all books                        *");
+            System.out.println("*   3. Search for books by title            *");
+            System.out.println("*   4. Update books                         *");
+            System.out.println("*   5. Delete books                         *");
+            System.out.println("*   6. View orders by different customers   *");
+            System.out.println("*   7. Log out                              *");
+            System.out.println("*********************************************");
+            while (true) {
+                try {
+                    System.out.print("Your choice: ");
+                    choice = scanner.nextInt();
+
+                    if (1 <= choice && choice <= 7) {
+                        break;
+                    }
+                    System.out.println("Your choice was invalid. Please try again!");
+                } catch (InputMismatchException e) {
+                    System.out.println("Your choice was not a valid positive integer from 1 to 7. Please try again!");
+                    scanner.next();
+                } catch (Exception e) {
+                    System.out.println("There was an unexpected exception thrown.");
+                    e.printStackTrace();
+                }
+            }
+
+            scanner.nextLine();
+
+            String title;
+            switch (choice) {
+                case 1:
+                    System.out.print("Title: ");
+                    title = scanner.nextLine();
+                    System.out.print("Author: ");
+                    String author = scanner.nextLine();
+
+                    double price;
+                    while (true) {
+                        try {
+                            System.out.print("Price: ");
+                            price = scanner.nextDouble();
+
+                            if (price >= 0) {
+                                break;
+                            }
+                            System.out.println("The price was negative. Please try again!");
+                        } catch (InputMismatchException e) {
+                            System.out.println("Your choice was not a valid decimal number. Please try again!");
+                            scanner.next();
+                        } catch (Exception e) {
+                            System.out.println("There was an unexpected exception thrown.");
+                            e.printStackTrace();
+                        }
+                    }
+                    scanner.nextLine();
+
+                    int quantity;
+                    while (true) {
+                        try {
+                            System.out.print("Quantity: ");
+                            quantity = scanner.nextInt();
+
+                            if (quantity > 0) {
+                                break;
+                            }
+                            System.out.println("The input was not a positive number as expected.");
+                        } catch (InputMismatchException e) {
+                            System.out.println("Your choice was not a valid positive integer. Please try again!");
+                            scanner.next();
+                        } catch (Exception e) {
+                            System.out.println("There was an unexpected exception thrown.");
+                            e.printStackTrace();
+                        }
+                    }
+                    scanner.nextLine();
+
+                    bookList.add(new Book(title, author, price, quantity));
+                    System.out.println("Book added");
+
+                    scanner.nextLine();
+                    break;
+
+                case 2:
+                    Sorting.quickSort(bookList, 0, bookList.size() - 1);
+                    System.out.println(" ---All available books---");
+                    for (int i = 0; i < bookList.size(); i++) {
+                        System.out.println(" - " + bookList.get(i));
+                    }
+                    break;
+
+                case 3:
+                    System.out.print("Book title to search for: ");
+                    title = scanner.nextLine();
+                    Book bookToSearchFor = new Book(title);
+                    Sorting.quickSort(bookList, 0, bookList.size() - 1);
+                    Book foundBook = Searching.search(bookList, bookToSearchFor);
+                    if (foundBook != null) {
+                        System.out.println(" ---Book info--- ");
+                        System.out.println(foundBook);
+                    } else {
+                        System.out.println("No such book available!");
+                    }
+
+                    scanner.nextLine();
+                    break;
+
+                case 4:
+                    System.out.print("Book title to search for: ");
+                    title = scanner.nextLine();
+                    Sorting.quickSort(bookList, 0, bookList.size() - 1);
+                    Book bookToUpdate = Searching.search(bookList, new Book(title));
+
+                    if (bookToUpdate != null) {
+                        System.out.print("New title: ");
+                        bookToUpdate.setTitle(scanner.nextLine());
+                        System.out.print("New author: ");
+                        bookToUpdate.setAuthor(scanner.nextLine());
+
+                        double newPrice;
+                        while (true) {
+                            try {
+                                System.out.print("New price: ");
+                                newPrice = scanner.nextDouble();
+                                if (newPrice >= 0) {
+                                    break;
+                                }
+                                System.out.println("The price was negative. Please try again!");
+                            } catch (InputMismatchException e) {
+                                System.out.println("Your choice was not a valid decimal number. Please try again!");
+                                scanner.next();
+                            } catch (Exception e) {
+                                System.out.println("There was an unexpected exception thrown.");
+                                e.printStackTrace();
+                            }
+                        }
+                        bookToUpdate.setPrice(newPrice);
+                        scanner.nextLine();
+
+                        int newQuantity;
+                        while (true) {
+                            try {
+                                System.out.print("New quantity: ");
+                                newQuantity = scanner.nextInt();
+
+                                if (newQuantity > 0) {
+                                    break;
+                                }
+                                System.out.println("The input was not a positive number as expected.");
+                            } catch (InputMismatchException e) {
+                                System.out.println("Your choice was not a valid positive integer. Please try again!");
+                                scanner.next();
+                            } catch (Exception e) {
+                                System.out.println("There was an unexpected exception thrown.");
+                                e.printStackTrace();
+                            }
+                        }
+                        bookToUpdate.setQuantity(newQuantity);
+                        scanner.nextLine();
+
+                        System.out.println("Book updated!");
+                    } else {
+                        System.out.println("Book not found!");
+                    }
+
+                    scanner.nextLine();
+                    break;
+
+                case 5:
+                    System.out.print("Book title to search for: ");
+                    title = scanner.nextLine();
+                    Sorting.quickSort(bookList, 0, bookList.size() - 1);
+                    int index = Searching.searchReturningIndex(bookList, new Book(title));
+                    if (index == -1) {
+                        System.out.println("Book not found!");
+                    } else {
+                        bookList.remove(index);
+                        System.out.println("Book removed!");
+                    }
+
+                    scanner.nextLine();
+                    break;
+
+                case 6:
+                    if (orderQueue.isEmpty()) {
+                        System.out.println("No orders made by any users at the moment.");
+                    } else {
+                        System.out.println(" ---Current orders--- ");
+                        Queue<Order> tempOrderQueue = new Queue<>();
+                        while (!orderQueue.isEmpty()) {
+                            Order iteratedOrder = orderQueue.poll();
+                            System.out.println(iteratedOrder);
+                            System.out.println(" -------------------- ");
+                            tempOrderQueue.offer(iteratedOrder);
+                        }
+
+                        while (!tempOrderQueue.isEmpty()) {
+                            orderQueue.offer(tempOrderQueue.poll());
+                        }
+                    }
+
+                    scanner.nextLine();
+                    break;
+
+                case 7:
+                    done = true;
+                    break;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        List<User> registeredUsers = new List<>();
+        User loggedInUser;
+
+        List<Book> bookList = generateAvailableBooks();
+        Queue<Order> orderQueue = new Queue<>();
+
+        boolean done = false;
+        int choice;
+
+        while (!done) {
+            System.out.println("ONLINE BOOKSTORE");
+            System.out.println("*******************");
+            System.out.println("*   1. Log in     *");
+            System.out.println("*   2. Register   *");
+            System.out.println("*   3. Exit       *");
+            System.out.println("*******************");
+            while (true) {
+                try {
+                    System.out.print("Your choice: ");
+                    choice = scanner.nextInt();
+
+                    if (1 <= choice && choice <= 3) {
+                        break;
+                    }
+                    System.out.println("Your choice was invalid. Please try again!");
+                } catch (InputMismatchException e) {
+                    System.out.println("Your choice was not a valid positive integer from 1 to 3. Please try again!");
+                    scanner.next();
+                } catch (Exception e) {
+                    System.out.println("There was an unexpected exception thrown.");
+                    e.printStackTrace();
+                }
+            }
+
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    loggedInUser = login(scanner, registeredUsers);
+                    if (loggedInUser.getRole().equalsIgnoreCase("customer")) {
+                        appCustomer(scanner, bookList, orderQueue, loggedInUser);
+                    } else {
+                        appAdmin(scanner, bookList, orderQueue, registeredUsers, loggedInUser);
+                    }
+                    break;
+
+                case 2:
+                    registeredUsers.add(register(scanner, registeredUsers));
+                    break;
+
+                case 3:
                     done = true;
                     break;
             }

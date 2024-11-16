@@ -1,18 +1,38 @@
 package models;
 
 import utils.List;
+import utils.Queue;
 
-public class User {
+public class User implements Comparable<User> {
     private String username;
     private String email;
     private String address;
+    private String password;
+    private String role;
     private List<Order> orderHistory;
+    private Queue<Order> currentOrder;
 
-    public User(String username, String email, String address) {
+    public User(String username, String email, String address, String password, String role) {
         this.username = username;
         this.email = email;
         this.address = address;
+        this.password = password;
+        this.role = role;
         this.orderHistory = new List<>();
+        this.currentOrder = new Queue<>();
+    }
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getUsername() {
@@ -43,7 +63,7 @@ public class User {
         return orderHistory;
     }
 
-    public void setOrders(List<Order> orderHistory) {
+    public void setOrderHistory(List<Order> orderHistory) {
         this.orderHistory = orderHistory;
     }
 
@@ -51,8 +71,29 @@ public class User {
         orderHistory.add(order);
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public Queue<Order> getCurrentOrder() {
+        return currentOrder;
+    }
+
+    public void setCurrentOrder(Queue<Order> currentOrder) {
+        this.currentOrder = currentOrder;
+    }
+
     @Override
     public String toString() {
-        return "Username: " + username + "\nEmail: " + email + "\nAddress: " + address;
+        return "Username: " + username + "\nEmail: " + email + "\nAddress: " + address + "\nRole: " + role;
+    }
+
+    @Override
+    public int compareTo(User o) {
+        return this.username.compareTo(o.username);
     }
 }

@@ -7,13 +7,10 @@ public class Searching {
 
         while (left <= right) {
             int mid = (left + right) / 2;
-            T midVal = list.get(mid);
 
-            int compare = midVal.compareTo(target);
-
-            if (compare < 0) {
+            if (list.get(mid).compareTo(target) < 0) {
                 left = mid + 1;
-            } else if (compare > 0) {
+            } else if (list.get(mid).compareTo(target) > 0) {
                 right = mid - 1;
             } else {
                 return list.get(mid);
