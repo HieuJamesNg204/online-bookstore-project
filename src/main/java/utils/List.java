@@ -80,11 +80,13 @@ public class List<T> implements ListInterface<T> {
     }
 
     private void grow() {
-        array = Arrays.copyOf(array, capacity * 2);
+        capacity *= 2;
+        array = Arrays.copyOf(array, capacity);
     }
 
     private void shrink() {
-        array = Arrays.copyOf(array, capacity / 2);
+        capacity /= 2;
+        array = Arrays.copyOf(array, capacity);
     }
 
     @Override
