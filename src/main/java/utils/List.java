@@ -35,7 +35,6 @@ public class List<T> implements ListInterface<T> {
         }
         array[index] = value;
         size++;
-        grow();
     }
 
     @Override

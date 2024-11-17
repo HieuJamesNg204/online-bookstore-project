@@ -340,7 +340,7 @@ public class Main {
     }
 
     public static void appAdmin(Scanner scanner, List<Book> bookList,
-                                Queue<Order> allOrders, List<User> registeredUser, User loggedInUser) {
+                                Queue<Order> allOrders) {
         boolean done = false;
         int choice;
         while (!done) {
@@ -622,7 +622,7 @@ public class Main {
                     if (loggedInUser.getRole().equalsIgnoreCase("customer")) {
                         appCustomer(scanner, bookList, orderQueue, loggedInUser);
                     } else {
-                        appAdmin(scanner, bookList, orderQueue, registeredUsers, loggedInUser);
+                        appAdmin(scanner, bookList, orderQueue);
                     }
                     break;
 
