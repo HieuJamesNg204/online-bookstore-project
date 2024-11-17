@@ -96,4 +96,8 @@ public class User implements Comparable<User> {
     public int compareTo(User o) {
         return this.username.compareTo(o.username);
     }
+
+    public boolean equals(User o) {
+        return this.username.equals(o.username);
+    }
 }

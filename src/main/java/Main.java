@@ -91,21 +91,21 @@ public class Main {
         return new User(username, email, address, password, role);
     }
 
-    public static void appCustomer(Scanner scanner, List<Book> bookList, Queue<Order> orderQueue, User loggedInUser) {
+    public static void appCustomer(Scanner scanner, List<Book> bookList, Queue<Order> allOrders, User loggedInUser) {
         boolean done = false;
         int choice;
         while (!done) {
             System.out.println("OLINE BOOKSTORE");
-            System.out.println("*************************************");
-            System.out.println("*   1. Display available books      *");
-            System.out.println("*   2. Search for a book by title   *");
-            System.out.println("*   3. Order books                  *");
-            System.out.println("*   4. Display current orders       *");
-            System.out.println("*   5. Proceed to payment           *");
-            System.out.println("*   6. Display order history        *");
-            System.out.println("*   7. Search order history         *");
-            System.out.println("*   8. Log out                      *");
-            System.out.println("*************************************");
+            System.out.println("********************************************");
+            System.out.println("*   1. Display available books             *");
+            System.out.println("*   2. Search for a book by title          *");
+            System.out.println("*   3. Order books                         *");
+            System.out.println("*   4. Display current orders              *");
+            System.out.println("*   5. Proceed to payment for all orders   *");
+            System.out.println("*   6. Display order history               *");
+            System.out.println("*   7. Search order history                *");
+            System.out.println("*   8. Log out                             *");
+            System.out.println("********************************************");
             while (true) {
                 try {
                     System.out.print("Your choice: ");
@@ -223,27 +223,29 @@ public class Main {
                         }
                     }
 
-                    orderQueue.offer(new Order(loggedInUser, booksToOrder));
+                    Order addedOrder = new Order(loggedInUser, booksToOrder);
+                    loggedInUser.getCurrentOrder().offer(addedOrder);
+                    allOrders.offer(addedOrder);
                     System.out.println("Book(s) successfully added to order");
 
                     scanner.nextLine();
                     break;
 
                 case 4:
-                    if (orderQueue.isEmpty()) {
+                    if (loggedInUser.getCurrentOrder().isEmpty()) {
                         System.out.println("No orders made at the moment. Try adding some books to see the orders");
                     } else {
                         System.out.println(" ---Current orders--- ");
                         Queue<Order> tempOrderQueue = new Queue<>();
-                        while (!orderQueue.isEmpty()) {
-                            Order iteratedOrder = orderQueue.poll();
+                        while (!loggedInUser.getCurrentOrder().isEmpty()) {
+                            Order iteratedOrder = loggedInUser.getCurrentOrder().poll();
                             System.out.println(iteratedOrder);
                             System.out.println(" -------------------- ");
                             tempOrderQueue.offer(iteratedOrder);
                         }
 
                         while (!tempOrderQueue.isEmpty()) {
-                            orderQueue.offer(tempOrderQueue.poll());
+                            loggedInUser.getCurrentOrder().offer(tempOrderQueue.poll());
                         }
                     }
 
@@ -251,25 +253,38 @@ public class Main {
                     break;
 
                 case 5:
-
-                    if (orderQueue.isEmpty()) {
-                        System.out.println("There's nothing to pay for. Try adding some books before proceeding!");
+                    String paymentRes = "There's nothing to pay for. Try adding some books before proceeding!";
+                    if (loggedInUser.getCurrentOrder().isEmpty()) {
+                        System.out.println(paymentRes);
                     } else {
-                        Order order = orderQueue.peek();
-                        List<Book> orderedBooks = order.getBooks();
                         double totalPaid = 0;
-                        for (int i = 0; i < orderedBooks.size(); i++) {
-                            totalPaid += orderedBooks.get(i).getPrice();
+                        Queue<Order> tempQueue = new Queue<>();
+
+                        while (!loggedInUser.getCurrentOrder().isEmpty()) {
+                            Order order = loggedInUser.getCurrentOrder().poll();
+                            if (!order.isPaid()) {
+                                List<Book> orderedBooks = order.getBooks();
+                                for (int i = 0; i < orderedBooks.size(); i++) {
+                                    totalPaid += orderedBooks.get(i).getPrice();
+                                }
+                                order.setPaid(true);
+                                paymentRes = "Payment is successful! Total paid: $" + totalPaid;
+                            }
+                            tempQueue.offer(order);
                         }
-                        order.setPaid(true);
-                        System.out.println("Payment is successful! Total paid: $" + totalPaid);
+
+                        while (!tempQueue.isEmpty()) {
+                            loggedInUser.getCurrentOrder().offer(tempQueue.poll());
+                        }
+
+                        System.out.println(paymentRes);
                     }
 
                     scanner.nextLine();
                     break;
 
                 case 6:
-                    System.out.println(" ---Order History---");
+                    System.out.println(" ---Order History--- ");
                     List<Order> orderList = loggedInUser.getOrderHistory();
                     if (orderList.isEmpty()) {
                         System.out.println("No orders have been made so far.");
@@ -325,7 +340,7 @@ public class Main {
     }
 
     public static void appAdmin(Scanner scanner, List<Book> bookList,
-                                Queue<Order> orderQueue, List<User> registeredUser, User loggedInUser) {
+                                Queue<Order> allOrders, List<User> registeredUser, User loggedInUser) {
         boolean done = false;
         int choice;
         while (!done) {
@@ -515,20 +530,20 @@ public class Main {
                     break;
 
                 case 6:
-                    if (orderQueue.isEmpty()) {
+                    if (allOrders.isEmpty()) {
                         System.out.println("No orders made by any users at the moment.");
                     } else {
                         System.out.println(" ---Current orders--- ");
                         Queue<Order> tempOrderQueue = new Queue<>();
-                        while (!orderQueue.isEmpty()) {
-                            Order iteratedOrder = orderQueue.poll();
+                        while (!allOrders.isEmpty()) {
+                            Order iteratedOrder = allOrders.poll();
                             System.out.println(iteratedOrder);
                             System.out.println(" -------------------- ");
                             tempOrderQueue.offer(iteratedOrder);
                         }
 
                         while (!tempOrderQueue.isEmpty()) {
-                            orderQueue.offer(tempOrderQueue.poll());
+                            allOrders.offer(tempOrderQueue.poll());
                         }
                     }
 
@@ -536,15 +551,20 @@ public class Main {
                     break;
 
                 case 7:
-                    if (orderQueue.peek().isPaid()) {
-                        Order processedOrder = orderQueue.poll();
-                        User userMakingTheOrder = processedOrder.getUser();
-                        processedOrder.setProcessed(true);
-                        userMakingTheOrder.getOrderHistory().add(processedOrder);
-                        System.out.println("Order successfully processed");
+                    if (allOrders.isEmpty()) {
+                        System.out.println("There are no orders to process.");
                     } else {
-                        System.out.println("Failed to process the next order because the customer hasn't paid for it" +
-                                " yet.");
+                        if (allOrders.peek().isPaid()) {
+                            Order processedOrder = allOrders.poll();
+                            User userMakingTheOrder = processedOrder.getUser();
+                            processedOrder.setProcessed(true);
+                            userMakingTheOrder.getCurrentOrder().poll();
+                            userMakingTheOrder.getOrderHistory().add(processedOrder);
+                            System.out.println("Order successfully processed");
+                        } else {
+                            System.out.println("Failed to process the next order because the customer hasn't paid for " +
+                                    "it yet.");
+                        }
                     }
 
                     scanner.nextLine();
