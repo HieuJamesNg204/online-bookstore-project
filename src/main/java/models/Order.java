@@ -10,14 +10,16 @@ public class Order implements Comparable<Order> {
     private int orderNumber;
     private User user;
     private List<Book> books;
-    private String status;
+    private boolean isProcessed;
+    private boolean isPaid;
     private String orderDate;
 
     public Order(User user, List<Book> books) {
         this.orderNumber = ++orderCounter;
         this.user = user;
         this.books = books;
-        this.status = "Unpaid";
+        this.isProcessed = false;
+        this.isPaid = false;
         this.orderDate = formatOrderDate(LocalDateTime.now());
     }
 
@@ -54,12 +56,12 @@ public class Order implements Comparable<Order> {
         this.books = books;
     }
 
-    public String getStatus() {
-        return status;
+    public boolean isProcessed() {
+        return isProcessed;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setProcessed(boolean processed) {
+        isProcessed = processed;
     }
 
     public static int getOrderCounter() {
@@ -76,6 +78,14 @@ public class Order implements Comparable<Order> {
 
     public void setOrderDate(String orderDate) {
         this.orderDate = orderDate;
+    }
+
+    public boolean isPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(boolean paid) {
+        isPaid = paid;
     }
 
     @Override
@@ -98,8 +108,10 @@ public class Order implements Comparable<Order> {
                 builder.append("        {").append(books.get(i)).append("},\n");
             }
         }
+
         builder.append("   ]\n")
-                .append(" - Status: ").append(status).append("\n")
+                .append(" - Payment status: ").append(isPaid? "Paid" : "Not paid").append("\n")
+                .append(" - Process status: ").append(isProcessed? "Processed" : "Processing").append("\n")
                 .append(" - Order date: ").append(orderDate);
 
         return builder.toString();

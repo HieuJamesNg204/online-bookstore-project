@@ -251,17 +251,17 @@ public class Main {
                     break;
 
                 case 5:
+
                     if (orderQueue.isEmpty()) {
                         System.out.println("There's nothing to pay for. Try adding some books before proceeding!");
                     } else {
-                        Order order = orderQueue.poll();
+                        Order order = orderQueue.peek();
                         List<Book> orderedBooks = order.getBooks();
                         double totalPaid = 0;
                         for (int i = 0; i < orderedBooks.size(); i++) {
                             totalPaid += orderedBooks.get(i).getPrice();
                         }
-                        order.setStatus("Paid");
-                        loggedInUser.getOrderHistory().add(order);
+                        order.setPaid(true);
                         System.out.println("Payment is successful! Total paid: $" + totalPaid);
                     }
 
@@ -337,14 +337,15 @@ public class Main {
             System.out.println("*   4. Update books                         *");
             System.out.println("*   5. Delete books                         *");
             System.out.println("*   6. View orders by different customers   *");
-            System.out.println("*   7. Log out                              *");
+            System.out.println("*   7. Process next customer order          *");
+            System.out.println("*   8. Log out                              *");
             System.out.println("*********************************************");
             while (true) {
                 try {
                     System.out.print("Your choice: ");
                     choice = scanner.nextInt();
 
-                    if (1 <= choice && choice <= 7) {
+                    if (1 <= choice && choice <= 8) {
                         break;
                     }
                     System.out.println("Your choice was invalid. Please try again!");
@@ -535,6 +536,21 @@ public class Main {
                     break;
 
                 case 7:
+                    if (orderQueue.peek().isPaid()) {
+                        Order processedOrder = orderQueue.poll();
+                        User userMakingTheOrder = processedOrder.getUser();
+                        processedOrder.setProcessed(true);
+                        userMakingTheOrder.getOrderHistory().add(processedOrder);
+                        System.out.println("Order successfully processed");
+                    } else {
+                        System.out.println("Failed to process the next order because the customer hasn't paid for it" +
+                                " yet.");
+                    }
+
+                    scanner.nextLine();
+                    break;
+
+                case 8:
                     done = true;
                     break;
             }
