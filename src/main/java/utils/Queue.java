@@ -73,7 +73,7 @@ public class Queue<T> implements QueueInterface<T> {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder("[");
+        StringBuilder builder = new StringBuilder();
 
         Item<T> temp = head;
 
@@ -81,13 +81,12 @@ public class Queue<T> implements QueueInterface<T> {
             builder.append(temp.value);
 
             if (temp.next != null) {
-                builder.append(", ");
+                builder.append("\n -------------------- \n");
             }
 
             temp = temp.next;
         }
 
-        builder.append("]");
         return builder.toString();
     }
 }

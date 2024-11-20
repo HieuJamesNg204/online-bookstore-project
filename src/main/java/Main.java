@@ -147,7 +147,10 @@ public class Main {
                     title = scanner.nextLine();
                     Book bookToSearchFor = new Book(title);
                     Sorting.quickSort(bookList, 0, bookList.size() - 1);
+                    long start = System.nanoTime();
                     Book foundBook = Searching.search(bookList, bookToSearchFor);
+                    long end = System.nanoTime();
+                    System.out.println("Searching time: " + (end - start) + " ns");
                     if (foundBook != null) {
                         System.out.println(" ---Book info--- ");
                         System.out.println(foundBook);
@@ -236,17 +239,7 @@ public class Main {
                         System.out.println("No orders made at the moment. Try adding some books to see the orders");
                     } else {
                         System.out.println(" ---Current orders--- ");
-                        Queue<Order> tempOrderQueue = new Queue<>();
-                        while (!loggedInUser.getCurrentOrder().isEmpty()) {
-                            Order iteratedOrder = loggedInUser.getCurrentOrder().poll();
-                            System.out.println(iteratedOrder);
-                            System.out.println(" -------------------- ");
-                            tempOrderQueue.offer(iteratedOrder);
-                        }
-
-                        while (!tempOrderQueue.isEmpty()) {
-                            loggedInUser.getCurrentOrder().offer(tempOrderQueue.poll());
-                        }
+                        System.out.println(loggedInUser.getCurrentOrder());
                     }
 
                     scanner.nextLine();
@@ -534,17 +527,7 @@ public class Main {
                         System.out.println("No orders made by any users at the moment.");
                     } else {
                         System.out.println(" ---Current orders--- ");
-                        Queue<Order> tempOrderQueue = new Queue<>();
-                        while (!allOrders.isEmpty()) {
-                            Order iteratedOrder = allOrders.poll();
-                            System.out.println(iteratedOrder);
-                            System.out.println(" -------------------- ");
-                            tempOrderQueue.offer(iteratedOrder);
-                        }
-
-                        while (!tempOrderQueue.isEmpty()) {
-                            allOrders.offer(tempOrderQueue.poll());
-                        }
+                        System.out.println(allOrders);
                     }
 
                     scanner.nextLine();
